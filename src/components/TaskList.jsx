@@ -1,23 +1,26 @@
 import taskData from "../data/tasks";
 import TaskCard from "./TaskCard";
 
+const STATUSES = [
+  { id: "pending", label: "Pending" },
+  { id: "in_progress", label: "In Progress" },
+  { id: "completed", label: "Completed" },
+];
+
 export default function TaskList() {
   return (
     <div className="py-12">
-      {/*pending | in_progress | completed: kanban board type column styling*/}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-2 border-gray-300 rounded-lg">
-        <div className="p-4 border-r-2 border-gray-300">
-          <h3 className="text-xl font-bold">Pending</h3>
-          {taskData.map((task) => task.status === "pending" && <TaskCard key={task.id} task={task} />)}
-        </div>
-        <div className="p-4 border-r-2 border-gray-300">
-          <h3 className="text-xl font-bold">In Progress</h3>
-          {taskData.map((task) => task.status === "in_progress" && <TaskCard key={task.id} task={task} />)}
-        </div>
-        <div className="p-4 border-r-2 border-gray-300">
-          <h3 className="text-xl font-bold">Completed</h3>
-          {taskData.map((task) => task.status === "completed" && <TaskCard key={task.id} task={task} />)}
-        </div>
+        {STATUSES.map((status) => (
+          <div key={status.id} className="p-4 border-b-2 md:border-r-2 border-gray-300 last:border-r-0">
+            <h3 className="text-xl font-bold mb-4">{status.label}</h3>
+            {taskData
+              .filter((task) => task.status === status.id)
+              .map((task) => (
+                <TaskCard key={task.id} task={task} />
+              ))}
+          </div>
+        ))}
       </div>
     </div>
   );
