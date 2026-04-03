@@ -29,6 +29,7 @@ export default function TaskList() {
             category: "API Task",
             priority: calculatedPriority,
             createdAt: new Date().toISOString(),
+            completedAt: item.completed ? new Date().toISOString() : null,
           };
         });
 
@@ -36,7 +37,7 @@ export default function TaskList() {
         setLoading(false);
       })
       .catch((err) => {
-        setError("Failed to fetch tasks", err);
+        setError(err.message || "Failed to fetch tasks");
         setLoading(false);
       });
   }, []);
