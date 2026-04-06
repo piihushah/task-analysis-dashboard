@@ -1,4 +1,5 @@
 import {
+  ResponsiveContainer,
   PieChart,
   Pie,
   BarChart,
@@ -36,8 +37,8 @@ export default function Dashboard(summary) {
     : [];
 
   return (
-    <div className="px-8 py-12 md:py-24">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="py-12 md:py-24">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-1 md:gap-4">
         <div className="bg-gray-800 p-4 rounded-lg text-center">
           <h2 className="text-lg font-semibold text-gray-400">Total Tasks</h2>
           <p className="text-2xl font-bold text-white">{summary.total}</p>
@@ -55,43 +56,53 @@ export default function Dashboard(summary) {
           <p className="text-2xl font-bold text-green-400">{summary.completed}</p>
         </div>
       </div>
-      <div className="border-2 rounded-md border-white shadow-md my-8">
+      <div className="border-2 rounded-md border-white shadow-md my-8 px-4">
         <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <div className="flex-1 mt-8 flex justify-center">
-            <PieChart width={400} height={400}>
-              <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
-                {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
+          <div className="flex-1 mt-8 flex justify-center w-full h-full sm:h-80">
+            <div className="w-full h-70 sm:h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} label>
+                    {chartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-          <div className="flex-1 mt-8 flex justify-center items-center">
-            <LineChart width={400} height={400} data={priorityData}>
+          <div className="flex-1 mt-8 flex justify-start items-start">
+            <div className="w-full h-70 sm:h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart width={400} height={400} data={priorityData}>
+                  <CartesianGrid stroke="#444" />
+                  <XAxis dataKey="name" stroke="#fff" />
+                  <YAxis stroke="#fff" />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="value" stroke="#ff7300" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+        <div className="mb-8">
+          <div className="mt-8 flex justify-center w-full h-80 sm:h-90">
+            <BarChart width={500} height={300} data={categoriesData}>
               <CartesianGrid stroke="#444" />
               <XAxis dataKey="name" stroke="#fff" />
               <YAxis stroke="#fff" />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="value" stroke="#ff7300" strokeWidth={2} />
-            </LineChart>
+              <Bar dataKey="value" fill="#8884d8">
+                {categoriesData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Bar>
+            </BarChart>
           </div>
-        </div>
-        <div className="mt-8 flex justify-center">
-          <BarChart width={500} height={300} data={categoriesData}>
-            <CartesianGrid stroke="#444" />
-            <XAxis dataKey="name" stroke="#fff" />
-            <YAxis stroke="#fff" />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="value" fill="#8884d8">
-              {categoriesData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Bar>
-          </BarChart>
         </div>
       </div>
     </div>
