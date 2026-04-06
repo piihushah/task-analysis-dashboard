@@ -10,7 +10,7 @@ export default function TaskList({ groupedTasks, statuses }) {
             {groupedTasks[status.id].length > 0 ? (
               groupedTasks[status.id].map((task) => <TaskCard key={task.id} task={task} />)
             ) : (
-              <p className="text-sm text-gray-500">No tasks</p>
+              <p className="text-sm text-inherit">No tasks</p>
             )}
           </div>
         ))}

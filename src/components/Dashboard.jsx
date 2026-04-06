@@ -36,8 +36,7 @@ export default function Dashboard(summary) {
     : [];
 
   return (
-    <div className="p-5">
-      <h1 className="text-2xl font-bold mb-5 text-white">Dashboard</h1>
+    <div className="px-8 py-12 md:py-24">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-gray-800 p-4 rounded-lg text-center">
           <h2 className="text-lg font-semibold text-gray-400">Total Tasks</h2>
@@ -56,43 +55,44 @@ export default function Dashboard(summary) {
           <p className="text-2xl font-bold text-green-400">{summary.completed}</p>
         </div>
       </div>
-
-      <div className="mt-8 flex justify-center">
-        <PieChart width={400} height={400}>
-          <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
-            {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Pie>
-          <Tooltip />
-          <Legend />
-        </PieChart>
-      </div>
-
-      <div className="mt-8 flex justify-center">
-        <LineChart width={400} height={400} data={priorityData}>
-          <CartesianGrid stroke="#444" />
-          <XAxis dataKey="name" stroke="#fff" />
-          <YAxis stroke="#fff" />
-          <Tooltip />
-          <Legend />
-          <Line type="monotone" dataKey="value" stroke="#ff7300" strokeWidth={2} />
-        </LineChart>
-      </div>
-
-      <div className="mt-8 flex justify-center">
-        <BarChart width={500} height={300} data={categoriesData}>
-          <CartesianGrid stroke="#444" />
-          <XAxis dataKey="name" stroke="#fff" />
-          <YAxis stroke="#fff" />
-          <Tooltip />
-          <Legend />
-          <Bar dataKey="value" fill="#8884d8">
-            {priorityData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Bar>
-        </BarChart>
+      <div className="border-2 rounded-md border-white shadow-md my-8">
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <div className="flex-1 mt-8 flex justify-center">
+            <PieChart width={400} height={400}>
+              <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </div>
+          <div className="flex-1 mt-8 flex justify-center items-center">
+            <LineChart width={400} height={400} data={priorityData}>
+              <CartesianGrid stroke="#444" />
+              <XAxis dataKey="name" stroke="#fff" />
+              <YAxis stroke="#fff" />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="value" stroke="#ff7300" strokeWidth={2} />
+            </LineChart>
+          </div>
+        </div>
+        <div className="mt-8 flex justify-center">
+          <BarChart width={500} height={300} data={categoriesData}>
+            <CartesianGrid stroke="#444" />
+            <XAxis dataKey="name" stroke="#fff" />
+            <YAxis stroke="#fff" />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="value" fill="#8884d8">
+              {categoriesData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Bar>
+          </BarChart>
+        </div>
       </div>
     </div>
   );

@@ -8,6 +8,8 @@ const STATUSES = [
   { id: "completed", label: "Completed" },
 ];
 
+const CATEGORIES = ["API Task", "Manual Task", "Review Task", "Bug Fix"];
+
 export default function TaskAPI() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +38,7 @@ export default function TaskAPI() {
             id: item.id.toString(),
             title: item.title,
             status: calculatedStatus,
-            category: "API Task",
+            category: CATEGORIES[item.id % CATEGORIES.length],
             priority: calculatedPriority,
             createdAt: new Date().toISOString(),
             completedAt: item.completed ? new Date().toISOString() : null,
