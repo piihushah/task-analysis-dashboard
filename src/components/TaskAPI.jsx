@@ -34,11 +34,24 @@ export default function TaskAPI() {
             calculatedPriority = "medium";
           }
 
+          let calculatedCategory = "Manual Task";
+          const categoryId = item.id % 12;
+
+          if (categoryId >= 0 && categoryId <= 4) {
+            calculatedCategory = "API Task"; // 5/12 ≈ 42% = ~25 tasks
+          } else if (categoryId >= 5 && categoryId <= 7) {
+            calculatedCategory = "Manual Task"; // 3/12 = 25% = ~15 tasks
+          } else if (categoryId >= 8 && categoryId <= 10) {
+            calculatedCategory = "Review Task"; // 3/12 = 25% = ~15 tasks
+          } else {
+            calculatedCategory = "Bug Fix"; // 1/12 ≈ 8% = ~5 tasks
+          }
+
           return {
             id: item.id.toString(),
             title: item.title,
             status: calculatedStatus,
-            category: CATEGORIES[item.id % CATEGORIES.length],
+            category: calculatedCategory,
             priority: calculatedPriority,
             createdAt: new Date().toISOString(),
             completedAt: item.completed ? new Date().toISOString() : null,
