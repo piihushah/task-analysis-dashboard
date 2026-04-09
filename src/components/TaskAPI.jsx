@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import TaskList from "./TaskList";
 import Dashboard from "./Dashboard";
+import TaskSearch from "./TaskSearch";
 
 const STATUSES = [
   { id: "pending", label: "Pending" },
@@ -14,6 +15,7 @@ export default function TaskAPI() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetch("https://jsonplaceholder.typicode.com/todos?_limit=60")
@@ -67,13 +69,18 @@ export default function TaskAPI() {
       });
   }, []);
 
+  const handleSearch = useCallback((val) => {
+    setSearchQuery(val);
+  }, []);
+
   const groupedTasks = useMemo(() => {
+    const filtered = tasks.filter((task) => task.title.toLowerCase().includes(searchQuery.toLowerCase()));
     return {
-      pending: tasks.filter((task) => task.status === "pending"),
-      in_progress: tasks.filter((task) => task.status === "in_progress"),
-      completed: tasks.filter((task) => task.status === "completed"),
+      pending: filtered.filter((task) => task.status === "pending"),
+      in_progress: filtered.filter((task) => task.status === "in_progress"),
+      completed: filtered.filter((task) => task.status === "completed"),
     };
-  }, [tasks]);
+  }, [tasks, searchQuery]);
 
   const summary = useMemo(() => {
     const lowPriority = tasks.filter((task) => task.priority === "low").length;
@@ -107,6 +114,7 @@ export default function TaskAPI() {
   return (
     <>
       <Dashboard {...summary} />
+      <TaskSearch value={searchQuery} onChange={handleSearch} />
       <TaskList groupedTasks={groupedTasks} statuses={STATUSES} />
     </>
   );

@@ -37,7 +37,7 @@ export default function Dashboard(summary) {
     : [];
 
   return (
-    <div className="py-12 md:py-24">
+    <div className="pt-12 md:pt-24">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-1 md:gap-4">
         <div className="bg-gray-800 p-4 rounded-lg text-center">
           <h2 className="text-lg font-semibold text-gray-400">Total Tasks</h2>
