@@ -9,8 +9,6 @@ const STATUSES = [
   { id: "completed", label: "Completed" },
 ];
 
-const CATEGORIES = ["API Task", "Manual Task", "Review Task", "Bug Fix"];
-
 export default function TaskAPI() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,9 +16,20 @@ export default function TaskAPI() {
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/todos?_limit=60")
-      .then((response) => response.json())
-      .then((data) => {
+    async function fetchTasks() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch("https://jsonplaceholder.typicode.com/todos?_limit=60");
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch tasks");
+        }
+
+        const data = await response.json();
+        const currentDate = new Date().toISOString();
+
         const transformedTasks = data.map((item) => {
           let calculatedStatus = item.completed ? "completed" : "pending";
 
@@ -40,13 +49,13 @@ export default function TaskAPI() {
           const categoryId = item.id % 12;
 
           if (categoryId >= 0 && categoryId <= 4) {
-            calculatedCategory = "API Task"; // 5/12 ≈ 42% = ~25 tasks
+            calculatedCategory = "API Task";
           } else if (categoryId >= 5 && categoryId <= 7) {
-            calculatedCategory = "Manual Task"; // 3/12 = 25% = ~15 tasks
+            calculatedCategory = "Manual Task";
           } else if (categoryId >= 8 && categoryId <= 10) {
-            calculatedCategory = "Review Task"; // 3/12 = 25% = ~15 tasks
+            calculatedCategory = "Review Task";
           } else {
-            calculatedCategory = "Bug Fix"; // 1/12 ≈ 8% = ~5 tasks
+            calculatedCategory = "Bug Fix";
           }
 
           return {
@@ -55,53 +64,76 @@ export default function TaskAPI() {
             status: calculatedStatus,
             category: calculatedCategory,
             priority: calculatedPriority,
-            createdAt: new Date().toISOString(),
-            completedAt: item.completed ? new Date().toISOString() : null,
+            createdAt: currentDate,
+            completedAt: item.completed ? currentDate : null,
           };
         });
 
         setTasks(transformedTasks);
-        setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         setError(err.message || "Failed to fetch tasks");
+      } finally {
         setLoading(false);
-      });
+      }
+    }
+
+    fetchTasks();
   }, []);
 
-  const handleSearch = useCallback((val) => {
-    setSearchQuery(val);
+  const handleSearch = useCallback((value) => {
+    setSearchQuery(value);
   }, []);
 
-  const groupedTasks = useMemo(() => {
-    const filtered = tasks.filter((task) => task.title.toLowerCase().includes(searchQuery.toLowerCase()));
-    return {
-      pending: filtered.filter((task) => task.status === "pending"),
-      in_progress: filtered.filter((task) => task.status === "in_progress"),
-      completed: filtered.filter((task) => task.status === "completed"),
-    };
+  const filteredTasks = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+
+    if (!query) return tasks;
+
+    return tasks.filter((task) => {
+      return (
+        task.title.toLowerCase().includes(query) ||
+        task.category.toLowerCase().includes(query) ||
+        task.status.toLowerCase().includes(query) ||
+        task.priority.toLowerCase().includes(query)
+      );
+    });
   }, [tasks, searchQuery]);
 
-  const summary = useMemo(() => {
-    const lowPriority = tasks.filter((task) => task.priority === "low").length;
-    const mediumPriority = tasks.filter((task) => task.priority === "medium").length;
-    const highPriority = tasks.filter((task) => task.priority === "high").length;
-    const categories = tasks.reduce((acc, task) => {
-      acc[task.category] = (acc[task.category] || 0) + 1;
-      return acc;
-    }, {});
+  const groupedTasks = useMemo(() => {
+    return filteredTasks.reduce(
+      (acc, task) => {
+        acc[task.status].push(task);
+        return acc;
+      },
+      {
+        pending: [],
+        in_progress: [],
+        completed: [],
+      },
+    );
+  }, [filteredTasks]);
 
-    return {
-      total: tasks.length,
-      pending: groupedTasks.pending.length,
-      in_progress: groupedTasks.in_progress.length,
-      completed: groupedTasks.completed.length,
-      low: lowPriority,
-      medium: mediumPriority,
-      high: highPriority,
-      categories: categories,
-    };
-  }, [groupedTasks, tasks]);
+  const summary = useMemo(() => {
+    return filteredTasks.reduce(
+      (acc, task) => {
+        acc.total += 1;
+        acc[task.status] += 1;
+        acc[task.priority] += 1;
+        acc.categories[task.category] = (acc.categories[task.category] || 0) + 1;
+        return acc;
+      },
+      {
+        total: 0,
+        pending: 0,
+        in_progress: 0,
+        completed: 0,
+        low: 0,
+        medium: 0,
+        high: 0,
+        categories: {},
+      },
+    );
+  }, [filteredTasks]);
 
   if (loading) {
     return <div className="text-white p-10 text-center">Loading Dashboard...</div>;
