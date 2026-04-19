@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import TaskList from "./TaskList";
 import Dashboard from "./Dashboard";
 import TaskSearch from "./TaskSearch";
+import TaskForm from "./TaskForm";
 
 const STATUSES = [
   { id: "pending", label: "Pending" },
@@ -14,6 +15,7 @@ export default function TaskAPI() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     async function fetchTasks() {
@@ -84,6 +86,27 @@ export default function TaskAPI() {
     setSearchQuery(value);
   }, []);
 
+  const handleOpenForm = useCallback(() => {
+    setShowForm(true);
+  }, []);
+
+  const handleAddTask = useCallback((newTask) => {
+    const createdDate = new Date().toISOString();
+
+    const taskToAdd = {
+      id: Date.now().toString(),
+      title: newTask.title,
+      category: newTask.category,
+      priority: newTask.priority,
+      status: newTask.status,
+      createdAt: createdDate,
+      completedAt: newTask.status === "completed" ? createdDate : null,
+    };
+
+    setTasks((prevTasks) => [taskToAdd, ...prevTasks]);
+    setShowForm(false);
+  }, []);
+
   const filteredTasks = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
@@ -146,7 +169,8 @@ export default function TaskAPI() {
   return (
     <>
       <Dashboard {...summary} />
-      <TaskSearch value={searchQuery} onChange={handleSearch} />
+      <TaskSearch value={searchQuery} onChange={handleSearch} onOpenForm={handleOpenForm} />
+      {showForm && <TaskForm onSubmit={handleAddTask} />}
       <TaskList groupedTasks={groupedTasks} statuses={STATUSES} />
     </>
   );
