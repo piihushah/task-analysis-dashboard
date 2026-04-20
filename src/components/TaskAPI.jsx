@@ -18,6 +18,13 @@ export default function TaskAPI() {
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
+    const storedTasks = localStorage.getItem("tasks");
+
+    if (storedTasks) {
+      setTasks(JSON.parse(storedTasks));
+      setLoading(false);
+      return;
+    }
     async function fetchTasks() {
       try {
         setLoading(true);
@@ -103,7 +110,15 @@ export default function TaskAPI() {
       completedAt: newTask.status === "completed" ? createdDate : null,
     };
 
-    setTasks((prevTasks) => [taskToAdd, ...prevTasks]);
+    setTasks((prevTasks) => {
+      const updatedTasks = [taskToAdd, ...prevTasks];
+
+      // save to localStorage
+      localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+
+      return updatedTasks;
+    });
+
     setShowForm(false);
   }, []);
 
