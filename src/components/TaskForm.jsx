@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function TaskForm({ onSubmit }) {
+function TaskForm({ onSubmit, onCancel }) {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("API Task");
   const [priority, setPriority] = useState("medium");
@@ -16,7 +16,7 @@ function TaskForm({ onSubmit }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-gray-800 p-6 rounded-lg">
+    <form onSubmit={handleSubmit} className="bg-gray-800 p-6 rounded-lg my-8">
       <div className="mb-4">
         <label className="block text-white font-semibold mb-2">Title</label>
         <input
@@ -25,6 +25,7 @@ function TaskForm({ onSubmit }) {
           onChange={(e) => setTitle(e.target.value)}
           className="w-full p-2 rounded bg-white text-gray-800 border border-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Task title"
+          required
         />
       </div>
       <div className="mb-4">
@@ -64,12 +65,18 @@ function TaskForm({ onSubmit }) {
           <option value="completed">Completed</option>
         </select>
       </div>
-      <button
-        type="submit"
-        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
-        Add Task
-      </button>
+      <div className="flex justify-end space-x-4">
+        <button
+          type="submit"
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Add Task
+        </button>
+
+        <button type="button" onClick={onCancel} className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+          Cancel
+        </button>
+      </div>
     </form>
   );
 }

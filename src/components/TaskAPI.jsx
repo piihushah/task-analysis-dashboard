@@ -185,7 +185,7 @@ export default function TaskAPI() {
     <>
       <Dashboard {...summary} />
       <TaskSearch value={searchQuery} onChange={handleSearch} onOpenForm={handleOpenForm} />
-      {showForm && <TaskForm onSubmit={handleAddTask} />}
+      {showForm && <TaskForm onSubmit={handleAddTask} onCancel={() => setShowForm(false)} />}
       <TaskList groupedTasks={groupedTasks} statuses={STATUSES} />
     </>
   );
