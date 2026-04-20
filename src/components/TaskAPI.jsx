@@ -97,6 +97,14 @@ export default function TaskAPI() {
     setShowForm(true);
   }, []);
 
+  const handleDeleteTask = useCallback((id) => {
+    setTasks((prevTasks) => {
+      const updated = prevTasks.filter((task) => task.id !== id);
+      localStorage.setItem("tasks", JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
   const handleAddTask = useCallback((newTask) => {
     const createdDate = new Date().toISOString();
 
@@ -186,7 +194,7 @@ export default function TaskAPI() {
       <Dashboard {...summary} />
       <TaskSearch value={searchQuery} onChange={handleSearch} onOpenForm={handleOpenForm} />
       {showForm && <TaskForm onSubmit={handleAddTask} onCancel={() => setShowForm(false)} />}
-      <TaskList groupedTasks={groupedTasks} statuses={STATUSES} />
+      <TaskList groupedTasks={groupedTasks} statuses={STATUSES} onDeleteTask={handleDeleteTask} />
     </>
   );
 }

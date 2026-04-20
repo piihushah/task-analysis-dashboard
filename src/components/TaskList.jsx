@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import TaskCard from "./TaskCard";
 import TaskModal from "./TaskModal";
 
-function TaskList({ groupedTasks, statuses }) {
+function TaskList({ groupedTasks, statuses, onDeleteTask }) {
   const [selectedTask, setSelectedTask] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -39,7 +39,7 @@ function TaskList({ groupedTasks, statuses }) {
         })}
       </div>
 
-      {isModalOpen && <TaskModal task={selectedTask} onClose={() => setIsModalOpen(false)} />}
+      {isModalOpen && <TaskModal task={selectedTask} onClose={() => setIsModalOpen(false)} onDelete={onDeleteTask} />}
     </>
   );
 }
