@@ -11,20 +11,22 @@ const STATUSES = [
 ];
 
 export default function TaskAPI() {
-  const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [tasks, setTasks] = useState(() => {
+    const storedTasks = localStorage.getItem("tasks");
+    return storedTasks ? JSON.parse(storedTasks) : [];
+  });
+
+  const [loading, setLoading] = useState(() => {
+    const storedTasks = localStorage.getItem("tasks");
+    return storedTasks ? false : true;
+  });
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
-    const storedTasks = localStorage.getItem("tasks");
+    if (tasks.length > 0) return;
 
-    if (storedTasks) {
-      setTasks(JSON.parse(storedTasks));
-      setLoading(false);
-      return;
-    }
     async function fetchTasks() {
       try {
         setLoading(true);
@@ -32,51 +34,19 @@ export default function TaskAPI() {
 
         const response = await fetch("https://jsonplaceholder.typicode.com/todos?_limit=60");
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch tasks");
-        }
-
         const data = await response.json();
+
         const currentDate = new Date().toISOString();
 
-        const transformedTasks = data.map((item) => {
-          let calculatedStatus = item.completed ? "completed" : "pending";
-
-          if (!item.completed && item.id % 3 === 0) {
-            calculatedStatus = "in_progress";
-          }
-
-          let calculatedPriority = "low";
-
-          if (item.id % 10 === 0) {
-            calculatedPriority = "high";
-          } else if (item.id % 2 === 0) {
-            calculatedPriority = "medium";
-          }
-
-          let calculatedCategory = "Manual Task";
-          const categoryId = item.id % 12;
-
-          if (categoryId >= 0 && categoryId <= 4) {
-            calculatedCategory = "API Task";
-          } else if (categoryId >= 5 && categoryId <= 7) {
-            calculatedCategory = "Manual Task";
-          } else if (categoryId >= 8 && categoryId <= 10) {
-            calculatedCategory = "Review Task";
-          } else {
-            calculatedCategory = "Bug Fix";
-          }
-
-          return {
-            id: item.id.toString(),
-            title: item.title,
-            status: calculatedStatus,
-            category: calculatedCategory,
-            priority: calculatedPriority,
-            createdAt: currentDate,
-            completedAt: item.completed ? currentDate : null,
-          };
-        });
+        const transformedTasks = data.map((item) => ({
+          id: item.id.toString(),
+          title: item.title,
+          status: item.completed ? "completed" : "pending",
+          category: "Manual Task",
+          priority: "low",
+          createdAt: currentDate,
+          completedAt: item.completed ? currentDate : null,
+        }));
 
         setTasks(transformedTasks);
       } catch (err) {
@@ -102,6 +72,23 @@ export default function TaskAPI() {
       const updated = prevTasks.filter((task) => task.id !== id);
       localStorage.setItem("tasks", JSON.stringify(updated));
       return updated;
+    });
+  }, []);
+
+  const handleUpdateTaskStatus = useCallback((taskId, newStatus) => {
+    setTasks((prevTasks) => {
+      const updatedTasks = prevTasks.map((task) =>
+        task.id === taskId
+          ? {
+              ...task,
+              status: newStatus,
+              completedAt: newStatus === "completed" ? new Date().toISOString() : null,
+            }
+          : task,
+      );
+
+      localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+      return updatedTasks;
     });
   }, []);
 
@@ -194,7 +181,12 @@ export default function TaskAPI() {
       <Dashboard {...summary} />
       <TaskSearch value={searchQuery} onChange={handleSearch} onOpenForm={handleOpenForm} />
       {showForm && <TaskForm onSubmit={handleAddTask} onCancel={() => setShowForm(false)} />}
-      <TaskList groupedTasks={groupedTasks} statuses={STATUSES} onDeleteTask={handleDeleteTask} />
+      <TaskList
+        groupedTasks={groupedTasks}
+        statuses={STATUSES}
+        onDeleteTask={handleDeleteTask}
+        onUpdateTaskStatus={handleUpdateTaskStatus}
+      />
     </>
   );
 }
